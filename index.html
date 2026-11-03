@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mẫu Bảng Videos — Cố Định Chiều Cao & Thanh Cuộn Nội Bộ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #131924;
+      --bg-card: #1b2230;
+      --bg-thead: #252f3f;
+      --bg-row-hover: #212a3a;
+      --bg-input: #141a26;
+      --border-color: #2b3547;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-indigo: #6366f1;
+      --accent-blue: #60a5fa;
+      --scroll-track: #151b26;
+      --scroll-thumb: #3b4861;
+      --scroll-thumb-hover: #6366f1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Khóa cuộn trang ngoài: toàn bộ giao diện nằm gọn trong 1 màn hình (100vh) */
+    html, body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 14px 20px;
+      gap: 10px;
+    }
+
+    /* Thanh điều khiển mẫu ở trên */
+    .demo-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.28);
+      border-radius: 8px;
+      padding: 7px 14px;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .demo-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .demo-badge {
+      background: var(--accent-indigo);
+      color: #fff;
+      font-weight: 700;
+      font-size: 10.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+
+    .demo-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .height-preset-btn {
+      background: #1e2636;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .height-preset-btn:hover {
+      color: var(--text-primary);
+      border-color: #475569;
+    }
+
+    .height-preset-btn.active {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: var(--accent-indigo);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       KHỐI BẢNG VIDEOS: CỐ ĐỊNH CHIỀU CAO, HEADER + FOOTER GHIM, THÂN BẢNG CUỘN NỘI BỘ
+       ========================================================================== */
+    .videos-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 72px);
+      max-height: calc(100vh - 72px);
+      min-height: 380px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    /* 1. Thanh tiêu đề trên cùng của Card (Cố định) */
+    .videos-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+      background: var(--bg-card);
+    }
+
+    .videos-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .videos-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .videos-visible-indicator {
+      font-size: 11.5px;
+      color: #93c5fd;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.28);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .videos-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 240px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 34px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0 12px 0 32px;
+      color: var(--text-primary);
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-indigo);
+    }
+
+    .btn-action {
+      height: 34px;
+      padding: 0 12px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12.5px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: #3f4d67;
+    }
+
+    .btn-icon-only {
+      padding: 0 9px;
+    }
+
+    /* 2. Vùng bọc thân bảng: flex: 1 1 0 + min-height: 0 để khóa chặt chiều cao */
+    .table-body-wrapper {
+      position: relative;
+      flex: 1 1 0%;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Scroll Element chính của bảng */
+    .table-scroll-container {
+      flex: 1 1 0%;
+      min-height: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    /* Thanh cuộn trình duyệt tùy biến rõ nét */
+    .table-scroll-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-scroll-container::-webkit-scrollbar-track {
+      background: var(--scroll-track);
+    }
+
+    .table-scroll-container::-webkit-scrollbar-thumb {
+      background: var(--scroll-thumb);
+      border-radius: 999px;
+    }
+
+    .table-scroll-container::-webkit-scrollbar-thumb:hover {
+      background: var(--scroll-thumb-hover);
+    }
+
+    /* Bảng dữ liệu */
+    .videos-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1080px;
+      table-layout: fixed;
+    }
+
+    /* Tiêu đề cột cố định (Sticky Header) luôn ghim ở đỉnh bảng khi cuộn */
+    .videos-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: var(--bg-thead);
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+    }
+
+    .col-stt { width: 54px; text-align: center !important; }
+    .col-video { width: 33%; }
+    .col-metrics { width: 175px; }
+    .col-channel { width: 215px; }
+    .col-user { width: 115px; }
+    .col-admin { width: 160px; }
+    .col-date { width: 130px; }
+
+    .videos-table tbody tr {
+      transition: background 0.12s ease;
+    }
+
+    .videos-table tbody tr:hover {
+      background: var(--bg-row-hover);
+    }
+
+    .videos-table tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+
+    .stt-cell {
+      text-align: center;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Cột Video: Thumbnail + Tiêu đề + Mô tả */
+    .video-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .video-thumb {
+      width: 82px;
+      height: 46px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .video-thumb-badge {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .video-thumb-sub {
+      font-size: 7px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fde047;
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .video-info {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .video-line-1,
+    .video-line-2 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .icon-action-mini {
+      color: var(--accent-indigo);
+      font-size: 13.5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0.9;
+      transition: transform 0.12s, opacity 0.12s;
+    }
+
+    .icon-action-mini:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .video-title-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-desc-text {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Cột Số Liệu */
+    .metrics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-label {
+      color: var(--text-secondary);
+    }
+
+    .metric-val {
+      color: #60a5fa;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Cột Kênh */
+    .channel-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .channel-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: radial-gradient(circle at 30% 30%, #ec4899, #6366f1 60%, #0f172a);
+      border: 1.5px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .channel-meta {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .channel-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .channel-id {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Cột Admin Tạo */
+    .admin-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .admin-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .admin-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .admin-role {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Cột Ngày Cập Nhật */
+    .date-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .date-str {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .time-str {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       SCROLL ELEMENT TÙY CHỈNH BÊN PHẢI BẢNG (KÉO THẢ TRỰC TIẾP + NÚT NHẢY DÒNG)
+       ========================================================================== */
+    .custom-scroll-panel {
+      width: 38px;
+      height: 100%;
+      background: #151b27;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      gap: 5px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .scroll-step-btn {
+      width: 28px;
+      height: 24px;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      background: #1e2636;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: all 0.14s;
+    }
+
+    .scroll-step-btn:hover {
+      background: var(--accent-indigo);
+      color: #fff;
+      border-color: var(--accent-indigo);
+    }
+
+    /* Rãnh kéo (Track) tùy chỉnh */
+    .custom-scroll-track {
+      position: relative;
+      flex: 1 1 0%;
+      width: 12px;
+      background: #0f141e;
+      border: 1px solid #263042;
+      border-radius: 999px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    /* Con trượt (Thumb) kéo thả mượt */
+    .custom-scroll-thumb {
+      position: absolute;
+      left: 1px;
+      right: 1px;
+      top: 0;
+      height: 36%;
+      min-height: 28px;
+      background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+      border-radius: 999px;
+      cursor: grab;
+      box-shadow: 0 2px 6px rgba(99, 102, 241, 0.45);
+      transition: background 0.15s;
+    }
+
+    .custom-scroll-thumb:hover,
+    .custom-scroll-thumb.dragging {
+      background: linear-gradient(180deg, #a5b4fc 0%, #4f46e5 100%);
+      cursor: grabbing;
+    }
+
+    .scroll-percent-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #93c5fd;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    /* 3. Thanh Phân Trang (Footer) cố định ở đáy Card — Luôn hiển thị */
+    .videos-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 12.5px;
+    }
+
+    .rows-select {
+      height: 32px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 0 10px;
+      font-size: 12.5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .footer-scroll-hint {
+      margin-left: 6px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      color: #c7d2fe;
+      font-size: 11.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .page-btn {
+      min-width: 30px;
+      height: 30px;
+      padding: 0 8px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .page-btn:hover:not(:disabled):not(.dots) {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .page-btn.active {
+      background: #334155;
+      color: #fff;
+      font-weight: 700;
+      border-color: #475569;
+    }
+
+    .page-btn.dots {
+      background: transparent;
+      cursor: default;
+    }
+
+    .toast-copied {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #10b981;
+      color: #052e16;
+      font-weight: 600;
+      font-size: 12.5px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 100;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .toast-copied.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <!-- Thanh chọn chế độ chiều cao cố định của bảng -->
+    <div class="demo-toolbar">
+      <div class="demo-toolbar-left">
+        <span class="demo-badge">MẪU BẢNG CỐ ĐỊNH CHIỀU CAO</span>
+        <span>Không cần cuộn trang ngoài: Thanh tìm kiếm, tiêu đề cột (<code>thead</code>) và phân trang (<code>Số dòng 10 · 1..232</code>) luôn hiển thị cố định.</span>
+      </div>
+      <div class="demo-toolbar-right">
+        <span>Chiều cao bảng:</span>
+        <button type="button" class="height-preset-btn active" data-h-mode="fit">Vừa màn hình (100vh)</button>
+        <button type="button" class="height-preset-btn" data-h-mode="540px">Cố định 540px</button>
+        <button type="button" class="height-preset-btn" data-h-mode="440px">Cố định 440px</button>
+      </div>
+    </div>
+
+    <!-- Khối Bảng Videos -->
+    <section class="videos-card" id="videos-card">
+      <!-- 1. Header cố định -->
+      <header class="videos-card-header">
+        <div class="videos-title-group">
+          <h1 class="videos-title">Videos</h1>
+          <span class="videos-visible-indicator" id="visible-rows-badge">Đang hiển thị dòng 1–6 / 10</span>
+        </div>
+
+        <div class="videos-header-actions">
+          <div class="search-box">
+            <i class="ri-search-line"></i>
+            <input type="text" id="video-search-input" placeholder="Search" autocomplete="off" />
+          </div>
+          <button type="button" class="btn-action">
+            <i class="ri-filter-3-line"></i>
+            <span>Filter</span>
+          </button>
+          <button type="button" class="btn-action btn-icon-only" title="Tùy chọn cột">
+            <i class="ri-equalizer-line"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- 2. Vùng thân bảng cố định chiều cao + Scroll Element kéo thả bên trong -->
+      <div class="table-body-wrapper">
+        <div class="table-scroll-container" id="table-scroll-container">
+          <table class="videos-table">
+            <thead>
+              <tr>
+                <th class="col-stt">STT</th>
+                <th class="col-video">Video</th>
+                <th class="col-metrics">Số Liệu</th>
+                <th class="col-channel">Kênh</th>
+                <th class="col-user">Người Dùng Tạo</th>
+                <th class="col-admin">Admin Tạo</th>
+                <th class="col-date">Ngày Cập Nhật</th>
+              </tr>
+            </thead>
+            <tbody id="videos-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Thanh Scroll Element trực quan bên phải bảng để nắm kéo hoặc bấm nhảy dòng -->
+        <aside class="custom-scroll-panel" aria-label="Thanh kéo cuộn bảng">
+          <button type="button" class="scroll-step-btn" id="btn-scroll-top" title="Lên đầu bảng (Dòng 1)">
+            <i class="ri-skip-up-line"></i>
+          </button>
+          <button type="button" class="scroll-step-btn" id="btn-scroll-up" title="Cuộn lên 1 dòng">
+            <i class="ri-arrow-up-s-line"></i>
+          </button>
+
+          <div class="custom-scroll-track" id="custom-scroll-track" title="Kéo thanh trượt hoặc bấm để cuộn nhanh">
+            <div class="custom-scroll-thumb" id="custom-scroll-thumb"></div>
+          </div>
+
+          <span class="scroll-percent-tag" id="scroll-percent-tag">0%</span>
+
+          <button type="button" class="scroll-step-btn" id="btn-scroll-down" title="Cuộn xuống 1 dòng">
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <button type="button" class="scroll-step-btn" id="btn-scroll-bottom" title="Xuống cuối bảng (Dòng 10)">
+            <i class="ri-skip-down-line"></i>
+          </button>
+        </aside>
+      </div>
+
+      <!-- 3. Footer Phân trang cố định ở đáy Card -->
+      <footer class="videos-card-footer">
+        <div class="footer-left">
+          <span>Số dòng</span>
+          <select id="rows-per-page" class="rows-select" aria-label="Số dòng mỗi trang">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span class="footer-scroll-hint">
+            <i class="ri-drag-move-2-line"></i> Kéo thanh cuộn tím bên phải hoặc lăn chuột ngay trong bảng để xem dòng 1 → 10
+          </span>
+        </div>
+
+        <nav class="pagination-bar" aria-label="Phân trang">
+          <button type="button" class="page-btn" id="prev-page-btn" title="Trang trước">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button type="button" class="page-btn active" data-page="1">1</button>
+          <button type="button" class="page-btn" data-page="2">2</button>
+          <button type="button" class="page-btn" data-page="3">3</button>
+          <span class="page-btn dots">...</span>
+          <button type="button" class="page-btn" data-page="232">232</button>
+          <button type="button" class="page-btn" id="next-page-btn" title="Trang tiếp">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </nav>
+      </footer>
+    </section>
+  </div>
+
+  <div class="toast-copied" id="toast-copied">Đã sao chép tiêu đề video!</div>
+
+  <script>
+    const VIDEO_ROWS = [
+      {
+        stt: 1,
+        badge: "80s",
+        sub: "FUNK & R&B",
+        grad: "linear-gradient(135deg, #311042 0%, #6d28d9 55%, #1e1b4b 100%)",
+        title: "80s Funk & R&B Marathon | Retro Soul & Dance-Floor Grooves",
+        desc: "80s Funk & R&B Marathon | Retro Soul & Dance-Floor Classics All Night",
+        views: 36, likes: 2, dislikes: 0, comments: 1
+      },
+      {
+        stt: 2,
+        badge: "SYNTH POP",
+        sub: "ODYSSEY",
+        grad: "linear-gradient(135deg, #4c0519 0%, #be185d 50%, #312e81 100%)",
+        title: "80s Music Mix | Synth Pop Odyssey ⚡ High Energy Retro Beats",
+        desc: "80s Music Mix — Synth Pop Odyssey ⚡ High Energy Retro Synthwave",
+        views: 22, likes: 1, dislikes: 0, comments: 1
+      },
+      {
+        stt: 3,
+        badge: "80s MIX",
+        sub: "RETRO HITS",
+        grad: "linear-gradient(135deg, #451a03 0%, #b45309 50%, #701a75 100%)",
+        title: "80s Mix | Retro Dance Pop Hits | Disco Evening Party",
+        desc: "80s Mix - Retro Dance Pop Hits - Disco Evening Party Vibes",
+        views: 49, likes: 0, dislikes: 0, comments: 1
+      },
+      {
+        stt: 4,
+        badge: "80s DISCO",
+        sub: "PLAYLIST",
+        grad: "linear-gradient(135deg, #1e1b4b 0%, #7e22ce 50%, #db2777 100%)",
+        title: "80s Disco Playlist | Retro Dance Pop | Nonstop Boogie",
+        desc: "80s dance pop mix featuring energetic synth-pop & disco grooves",
+        views: 270, likes: 2, dislikes: 0, comments: 1
+      },
+      {
+        stt: 5,
+        badge: "RETRO",
+        sub: "DRIVE",
+        grad: "linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #581c87 100%)",
+        title: "Classic 80s Mix | Dance Pop Playlist | Golden Coast Sunset",
+        desc: "Classic 80s Mix - Dance Pop Hits - Golden Coast Highway Mix",
+        views: 212, likes: 2, dislikes: 0, comments: 1
+      },
+      {
+        stt: 6,
+        badge: "1980",
+        sub: "DISCO CRUISE",
+        grad: "linear-gradient(135deg, #422006 0%, #ca8a04 55%, #1e293b 100%)",
+        title: "80s Music Mix | Disco Pop Grooves | Coastal Drive",
+        desc: "80s Music Mix | Disco Pop Grooves | Coastal Drive & Neon Lights",
+        views: 11, likes: 0, dislikes: 0, comments: 1
+      },
+      {
+        stt: 7,
+        badge: "1980s",
+        sub: "NEON DANCE",
+        grad: "linear-gradient(135deg, #831843 0%, #e11d48 50%, #f59e0b 100%)",
+        title: "80s Mix | Neon Dance Hits | California Sunset Vibes",
+        desc: "80s Mix | Neon Dance Hits | California Sunset Boulevard",
+        views: 15, likes: 1, dislikes: 0, comments: 1
+      },
+      {
+        stt: 8,
+        badge: "80s POP",
+        sub: "NIGHT FEVER",
+        grad: "linear-gradient(135deg, #0f172a 0%, #0284c7 50%, #9333ea 100%)",
+        title: "80s Night Fever | Synthwave & Boogie Pop Classics",
+        desc: "80s Night Fever — Midnight Synthwave & Retro Boogie Mix",
+        views: 64, likes: 3, dislikes: 0, comments: 1
+      },
+      {
+        stt: 9,
+        badge: "1987",
+        sub: "FEEL-GOOD",
+        grad: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 50%, #f59e0b 100%)",
+        title: "80s Mix | Feel-Good Dance Pop | Golden Era Anthems",
+        desc: "Welcome to 80s Groove Machine — your ultimate retro destination",
+        views: 17, likes: 0, dislikes: 0, comments: 1
+      },
+      {
+        stt: 10,
+        badge: "80s",
+        sub: "WARM SUNSET",
+        grad: "linear-gradient(135deg, #1e1b4b 0%, #4f46e5 50%, #ec4899 100%)",
+        title: "80s Mix | Disco Dance Pop Hits | Warm Sunset Drive",
+        desc: "80s Mix | Disco Dance Pop Hits | Warm Sunset Drive Session",
+        views: 35, likes: 0, dislikes: 0, comments: 1
+      }
+    ];
+
+    const tbody = document.getElementById('videos-tbody');
+    const scrollContainer = document.getElementById('table-scroll-container');
+    const scrollTrack = document.getElementById('custom-scroll-track');
+    const scrollThumb = document.getElementById('custom-scroll-thumb');
+    const scrollPercentTag = document.getElementById('scroll-percent-tag');
+    const visibleRowsBadge = document.getElementById('visible-rows-badge');
+    const searchInput = document.getElementById('video-search-input');
+    const rowsSelect = document.getElementById('rows-per-page');
+    const toastEl = document.getElementById('toast-copied');
+
+    function buildRowsList(count, query) {
+      const q = (query || '').trim().toLowerCase();
+      const expanded = [];
+      for (let i = 0; i < count; i++) {
+        const base = VIDEO_ROWS[i % VIDEO_ROWS.length];
+        expanded.push({
+          ...base,
+          stt: i + 1
+        });
+      }
+      if (!q) return expanded;
+      return expanded.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        r.desc.toLowerCase().includes(q) ||
+        String(r.stt) === q
+      );
+    }
+
+    function renderTable() {
+      const count = Number(rowsSelect.value) || 10;
+      const rows = buildRowsList(count, searchInput.value);
+
+      tbody.innerHTML = rows.map(r => `
+        <tr data-row-stt="${r.stt}">
+          <td class="stt-cell">${r.stt}</td>
+          <td>
+            <div class="video-cell">
+              <div class="video-thumb" style="background:${r.grad};">
+                <span class="video-thumb-badge">${r.badge}</span>
+                <span class="video-thumb-sub">${r.sub}</span>
+              </div>
+              <div class="video-info">
+                <div class="video-line-1">
+                  <i class="ri-file-copy-line icon-action-mini" data-copy="${r.title.replace(/"/g, '&quot;')}" title="Sao chép tiêu đề"></i>
+                  <span class="video-title-text" title="${r.title}">${r.title}</span>
+                </div>
+                <div class="video-line-2">
+                  <i class="ri-external-link-line icon-action-mini" title="Mở video trên YouTube"></i>
+                  <span class="video-desc-text" title="${r.desc}">${r.desc}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="metrics-list">
+              <div class="metric-row"><span class="metric-label">Lượt Xem :</span><span class="metric-val">${r.views}</span></div>
+              <div class="metric-row"><span class="metric-label">Lượt Thích :</span><span class="metric-val">${r.likes}</span></div>
+              <div class="metric-row"><span class="metric-label">Lượt Không Thích :</span><span class="metric-val">${r.dislikes}</span></div>
+              <div class="metric-row"><span class="metric-label">Nhận Xét :</span><span class="metric-val">${r.comments}</span></div>
+            </div>
+          </td>
+          <td>
+            <div class="channel-cell">
+              <div class="channel-avatar">80's</div>
+              <div class="channel-meta">
+                <span class="channel-name">80s Groove Machine</span>
+                <span class="channel-id">UCuNF36PtETqVFz_yK6C_v-g</span>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--text-secondary);">-</td>
+          <td>
+            <div class="admin-cell">
+              <div class="admin-avatar"><i class="ri-user-3-fill"></i></div>
+              <div class="admin-meta">
+                <span class="admin-name">Administrator</span>
+                <span class="admin-role">admin</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="date-cell">
+              <span class="date-str">2026-11-03</span>
+              <span class="time-str">07:12:27</span>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      requestAnimationFrame(updateScrollSync);
+    }
+
+    function updateScrollSync() {
+      const sh = scrollContainer.scrollHeight;
+      const ch = scrollContainer.clientHeight;
+      const maxScroll = Math.max(0, sh - ch);
+      const current = scrollContainer.scrollTop;
+      const ratio = maxScroll > 0 ? Math.min(1, Math.max(0, current / maxScroll)) : 0;
+      const pct = Math.round(ratio * 100);
+
+      // Cập nhật vị trí và kích thước con trượt (thumb)
+      const trackH = scrollTrack.clientHeight;
+      const thumbRatio = sh > 0 ? Math.min(1, Math.max(0.15, ch / sh)) : 1;
+      const thumbH = Math.max(28, Math.round(trackH * thumbRatio));
+      const maxThumbTop = Math.max(0, trackH - thumbH);
+      const thumbTop = Math.round(ratio * maxThumbTop);
+
+      scrollThumb.style.height = `${thumbH}px`;
+      scrollThumb.style.top = `${thumbTop}px`;
+      scrollPercentTag.textContent = `${pct}%`;
+
+      // Tính dòng đang hiển thị trong vùng nhìn thấy của bảng
+      const rowEls = Array.from(tbody.querySelectorAll('tr'));
+      if (rowEls.length === 0) {
+        visibleRowsBadge.textContent = 'Không có dòng phù hợp';
+        return;
+      }
+      const cRect = scrollContainer.getBoundingClientRect();
+      const theadHeight = 40;
+      const visibleStts = [];
+      rowEls.forEach(tr => {
+        const r = tr.getBoundingClientRect();
+        if (r.bottom > cRect.top + theadHeight + 10 && r.top < cRect.bottom - 10) {
+          visibleStts.push(Number(tr.getAttribute('data-row-stt')));
+        }
+      });
+      if (visibleStts.length > 0) {
+        const first = visibleStts[0];
+        const last = visibleStts[visibleStts.length - 1];
+        visibleRowsBadge.textContent = `Đang hiển thị dòng ${first}–${last} / ${rowEls.length}`;
+      }
+    }
+
+    scrollContainer.addEventListener('scroll', updateScrollSync);
+
+    // Kéo thả trực tiếp trên thanh Custom Scroll Thumb & bấm trên Track
+    let isDraggingThumb = false;
+    let dragStartY = 0;
+    let dragStartScrollTop = 0;
+
+    scrollThumb.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      isDraggingThumb = true;
+      dragStartY = e.clientY;
+      dragStartScrollTop = scrollContainer.scrollTop;
+      scrollThumb.classList.add('dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDraggingThumb) return;
+      const dy = e.clientY - dragStartY;
+      const trackH = scrollTrack.clientHeight;
+      const thumbH = scrollThumb.offsetHeight;
+      const maxThumbTop = Math.max(1, trackH - thumbH);
+      const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+      scrollContainer.scrollTop = dragStartScrollTop + (dy / maxThumbTop) * maxScroll;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDraggingThumb) {
+        isDraggingThumb = false;
+        scrollThumb.classList.remove('dragging');
+      }
+    });
+
+    scrollTrack.addEventListener('mousedown', (e) => {
+      if (e.target === scrollThumb) return;
+      const rect = scrollTrack.getBoundingClientRect();
+      const clickY = e.clientY - rect.top;
+      const thumbH = scrollThumb.offsetHeight;
+      const targetRatio = Math.min(1, Math.max(0, (clickY - thumbH / 2) / Math.max(1, rect.height - thumbH)));
+      const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+      scrollContainer.scrollTo({ top: targetRatio * maxScroll, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-scroll-top').addEventListener('click', () => {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-scroll-bottom').addEventListener('click', () => {
+      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-scroll-up').addEventListener('click', () => {
+      scrollContainer.scrollBy({ top: -90, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-scroll-down').addEventListener('click', () => {
+      scrollContainer.scrollBy({ top: 90, behavior: 'smooth' });
+    });
+
+    searchInput.addEventListener('input', renderTable);
+    rowsSelect.addEventListener('change', () => {
+      scrollContainer.scrollTop = 0;
+      renderTable();
+    });
+
+    // Chuyển đổi chiều cao mẫu của khung bảng
+    const videosCard = document.getElementById('videos-card');
+    document.querySelectorAll('[data-h-mode]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-h-mode]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.getAttribute('data-h-mode');
+        if (mode === 'fit') {
+          videosCard.style.height = 'calc(100vh - 72px)';
+          videosCard.style.maxHeight = 'calc(100vh - 72px)';
+        } else {
+          videosCard.style.height = mode;
+          videosCard.style.maxHeight = mode;
+        }
+        setTimeout(updateScrollSync, 50);
+      });
+    });
+
+    // Sao chép tiêu đề video
+    let toastTimer = null;
+    tbody.addEventListener('click', (e) => {
+      const copyBtn = e.target.closest('[data-copy]');
+      if (!copyBtn) return;
+      const text = copyBtn.getAttribute('data-copy');
+      navigator.clipboard?.writeText(text).catch(() => {});
+      toastEl.textContent = `Đã sao chép: "${text.slice(0, 42)}..."`;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+    });
+
+    // Phân trang demo
+    document.querySelectorAll('.pagination-bar .page-btn[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pagination-bar .page-btn[data-page]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    window.addEventListener('resize', updateScrollSync);
+    renderTable();
+  </script>
+</body>
+</html>
