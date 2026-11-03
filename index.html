@@ -253,8 +253,8 @@
 
     /* Thanh cuộn trình duyệt tùy biến rõ nét */
     .table-scroll-container::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
     }
 
     .table-scroll-container::-webkit-scrollbar-track {
@@ -264,6 +264,7 @@
     .table-scroll-container::-webkit-scrollbar-thumb {
       background: var(--scroll-thumb);
       border-radius: 999px;
+      border: 2px solid var(--scroll-track);
     }
 
     .table-scroll-container::-webkit-scrollbar-thumb:hover {
@@ -542,86 +543,6 @@
       color: var(--text-muted);
     }
 
-    /* ==========================================================================
-       SCROLL ELEMENT TÙY CHỈNH BÊN PHẢI BẢNG (KÉO THẢ TRỰC TIẾP + NÚT NHẢY DÒNG)
-       ========================================================================== */
-    .custom-scroll-panel {
-      width: 38px;
-      height: 100%;
-      background: #151b27;
-      border-left: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 6px 4px;
-      gap: 5px;
-      flex-shrink: 0;
-      user-select: none;
-    }
-
-    .scroll-step-btn {
-      width: 28px;
-      height: 24px;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-      background: #1e2636;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      flex-shrink: 0;
-      transition: all 0.14s;
-    }
-
-    .scroll-step-btn:hover {
-      background: var(--accent-indigo);
-      color: #fff;
-      border-color: var(--accent-indigo);
-    }
-
-    /* Rãnh kéo (Track) tùy chỉnh */
-    .custom-scroll-track {
-      position: relative;
-      flex: 1 1 0%;
-      width: 12px;
-      background: #0f141e;
-      border: 1px solid #263042;
-      border-radius: 999px;
-      cursor: pointer;
-      overflow: hidden;
-    }
-
-    /* Con trượt (Thumb) kéo thả mượt */
-    .custom-scroll-thumb {
-      position: absolute;
-      left: 1px;
-      right: 1px;
-      top: 0;
-      height: 36%;
-      min-height: 28px;
-      background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
-      border-radius: 999px;
-      cursor: grab;
-      box-shadow: 0 2px 6px rgba(99, 102, 241, 0.45);
-      transition: background 0.15s;
-    }
-
-    .custom-scroll-thumb:hover,
-    .custom-scroll-thumb.dragging {
-      background: linear-gradient(180deg, #a5b4fc 0%, #4f46e5 100%);
-      cursor: grabbing;
-    }
-
-    .scroll-percent-tag {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: #93c5fd;
-      font-variant-numeric: tabular-nums;
-      flex-shrink: 0;
-    }
-
     /* 3. Thanh Phân Trang (Footer) cố định ở đáy Card — Luôn hiển thị */
     .videos-card-footer {
       display: flex;
@@ -788,29 +709,6 @@
             <tbody id="videos-tbody"></tbody>
           </table>
         </div>
-
-        <!-- Thanh Scroll Element trực quan bên phải bảng để nắm kéo hoặc bấm nhảy dòng -->
-        <aside class="custom-scroll-panel" aria-label="Thanh kéo cuộn bảng">
-          <button type="button" class="scroll-step-btn" id="btn-scroll-top" title="Lên đầu bảng (Dòng 1)">
-            <i class="ri-skip-up-line"></i>
-          </button>
-          <button type="button" class="scroll-step-btn" id="btn-scroll-up" title="Cuộn lên 1 dòng">
-            <i class="ri-arrow-up-s-line"></i>
-          </button>
-
-          <div class="custom-scroll-track" id="custom-scroll-track" title="Kéo thanh trượt hoặc bấm để cuộn nhanh">
-            <div class="custom-scroll-thumb" id="custom-scroll-thumb"></div>
-          </div>
-
-          <span class="scroll-percent-tag" id="scroll-percent-tag">0%</span>
-
-          <button type="button" class="scroll-step-btn" id="btn-scroll-down" title="Cuộn xuống 1 dòng">
-            <i class="ri-arrow-down-s-line"></i>
-          </button>
-          <button type="button" class="scroll-step-btn" id="btn-scroll-bottom" title="Xuống cuối bảng (Dòng 10)">
-            <i class="ri-skip-down-line"></i>
-          </button>
-        </aside>
       </div>
 
       <!-- 3. Footer Phân trang cố định ở đáy Card -->
@@ -822,9 +720,6 @@
             <option value="20">20</option>
             <option value="50">50</option>
           </select>
-          <span class="footer-scroll-hint">
-            <i class="ri-drag-move-2-line"></i> Kéo thanh cuộn tím bên phải hoặc lăn chuột ngay trong bảng để xem dòng 1 → 10
-          </span>
         </div>
 
         <nav class="pagination-bar" aria-label="Phân trang">
@@ -942,9 +837,6 @@
 
     const tbody = document.getElementById('videos-tbody');
     const scrollContainer = document.getElementById('table-scroll-container');
-    const scrollTrack = document.getElementById('custom-scroll-track');
-    const scrollThumb = document.getElementById('custom-scroll-thumb');
-    const scrollPercentTag = document.getElementById('scroll-percent-tag');
     const visibleRowsBadge = document.getElementById('visible-rows-badge');
     const searchInput = document.getElementById('video-search-input');
     const rowsSelect = document.getElementById('rows-per-page');
@@ -1033,24 +925,6 @@
     }
 
     function updateScrollSync() {
-      const sh = scrollContainer.scrollHeight;
-      const ch = scrollContainer.clientHeight;
-      const maxScroll = Math.max(0, sh - ch);
-      const current = scrollContainer.scrollTop;
-      const ratio = maxScroll > 0 ? Math.min(1, Math.max(0, current / maxScroll)) : 0;
-      const pct = Math.round(ratio * 100);
-
-      // Cập nhật vị trí và kích thước con trượt (thumb)
-      const trackH = scrollTrack.clientHeight;
-      const thumbRatio = sh > 0 ? Math.min(1, Math.max(0.15, ch / sh)) : 1;
-      const thumbH = Math.max(28, Math.round(trackH * thumbRatio));
-      const maxThumbTop = Math.max(0, trackH - thumbH);
-      const thumbTop = Math.round(ratio * maxThumbTop);
-
-      scrollThumb.style.height = `${thumbH}px`;
-      scrollThumb.style.top = `${thumbTop}px`;
-      scrollPercentTag.textContent = `${pct}%`;
-
       // Tính dòng đang hiển thị trong vùng nhìn thấy của bảng
       const rowEls = Array.from(tbody.querySelectorAll('tr'));
       if (rowEls.length === 0) {
@@ -1074,63 +948,6 @@
     }
 
     scrollContainer.addEventListener('scroll', updateScrollSync);
-
-    // Kéo thả trực tiếp trên thanh Custom Scroll Thumb & bấm trên Track
-    let isDraggingThumb = false;
-    let dragStartY = 0;
-    let dragStartScrollTop = 0;
-
-    scrollThumb.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      isDraggingThumb = true;
-      dragStartY = e.clientY;
-      dragStartScrollTop = scrollContainer.scrollTop;
-      scrollThumb.classList.add('dragging');
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!isDraggingThumb) return;
-      const dy = e.clientY - dragStartY;
-      const trackH = scrollTrack.clientHeight;
-      const thumbH = scrollThumb.offsetHeight;
-      const maxThumbTop = Math.max(1, trackH - thumbH);
-      const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
-      scrollContainer.scrollTop = dragStartScrollTop + (dy / maxThumbTop) * maxScroll;
-    });
-
-    window.addEventListener('mouseup', () => {
-      if (isDraggingThumb) {
-        isDraggingThumb = false;
-        scrollThumb.classList.remove('dragging');
-      }
-    });
-
-    scrollTrack.addEventListener('mousedown', (e) => {
-      if (e.target === scrollThumb) return;
-      const rect = scrollTrack.getBoundingClientRect();
-      const clickY = e.clientY - rect.top;
-      const thumbH = scrollThumb.offsetHeight;
-      const targetRatio = Math.min(1, Math.max(0, (clickY - thumbH / 2) / Math.max(1, rect.height - thumbH)));
-      const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
-      scrollContainer.scrollTo({ top: targetRatio * maxScroll, behavior: 'smooth' });
-    });
-
-    document.getElementById('btn-scroll-top').addEventListener('click', () => {
-      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    document.getElementById('btn-scroll-bottom').addEventListener('click', () => {
-      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
-    });
-
-    document.getElementById('btn-scroll-up').addEventListener('click', () => {
-      scrollContainer.scrollBy({ top: -90, behavior: 'smooth' });
-    });
-
-    document.getElementById('btn-scroll-down').addEventListener('click', () => {
-      scrollContainer.scrollBy({ top: 90, behavior: 'smooth' });
-    });
 
     searchInput.addEventListener('input', renderTable);
     rowsSelect.addEventListener('change', () => {
